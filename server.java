@@ -33,10 +33,12 @@ public class server extends TypeMIME {
                     ObjFile AssocExtension = null;
                     String If_FileExist = null;
                     int count = 0;
-
+                    
                     for (ObjFile element : TypeMIME.Extensiones) {
                         try {
-                            if (TextTools.txt_split(Data_Package.URL, ".")[1].equals(element.extension)) {
+                            String[] urlSplit = TextTools.txt_split(Data_Package.URL, ".");
+                            int lastIndex = urlSplit.length - 1;
+                            if (urlSplit.length >= 2 && urlSplit[lastIndex].equals(element.extension)) {
                                 // Si la extensión del archivo coincide con el elemento actual
                                 AssocExtension = element;
                                 RUTA_TMP.Item = count;
@@ -47,16 +49,18 @@ public class server extends TypeMIME {
                                 break;
                             }
                         } catch (Exception e) {
-                            if (new File(element.root + Data_Package.URL + "." + element.extension).exists()) {
+                            String fileWithExtension = Data_Package.URL + "." + element.extension;
+                            if (new File(element.root + fileWithExtension).exists()) {
                                 // Si el archivo con la extensión actual existe
                                 AssocExtension = element;
                                 RUTA_TMP.Item = count;
-                                If_FileExist = Data_Package.URL + "." + element.extension;
+                                If_FileExist = fileWithExtension;
                                 break;
                             }
                         }
                         count++;
                     }
+
 
                     if (AssocExtension != null && If_FileExist != null) {
                         // Si se encontró una extensión coincidente y el archivo existe

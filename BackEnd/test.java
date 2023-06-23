@@ -7,4 +7,11 @@ public class test {
         
         return output;
     }
+
+    public static String mensaje1(String input){
+        
+        String output = "Prueba 2, " + input;
+        
+        return output;
+    }
 }
