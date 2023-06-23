@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Ejemplo de procesamiento de código Java</title>
+</head>
+
+<body>
+    <h2>Procesamiento de código Java</h2>
+
+    <textarea id="inputTextarea" rows="10" cols="100"></textarea>
+    <br>
+    <button onclick="procesarCodigo()">Procesar</button>
+    <br>
+    <textarea id="outputTextarea" rows="10" cols="100" readonly></textarea>
+
+    <script>
+        function procesarCodigo() {
+            let inputCode = document.getElementById("inputTextarea").value;
+
+            function convertirCodigoJavaEnString(codigo) {
+                // Reemplazar las comillas dobles por su representación en cadena
+                // Representaciones de caracteres especiales
+
+                // codigoConvertido = codigoConvertido.replace(/\\/g, '\\\\'); // Barra invertida
+                // codigoConvertido = codigoConvertido.replace(/\t/g, '\\t'); // Tabulación
+                // codigoConvertido = codigoConvertido.replace(/\r/g, '\\r'); // Retorno de carro
+                // codigoConvertido = codigoConvertido.replace(/\f/g, '\\f'); // Avance de página
+                // codigoConvertido = codigoConvertido.replace(/\b/g, '\\b'); // Retroceso
+                // codigoConvertido = codigoConvertido.replace(/\u0008/g, '\\b'); // Retroceso (representación unicode)
+
+                let codigoConvertido = codigo.replace(/"/g, '\\"');
+
+                // Reemplazar los saltos de línea por concatenaciones con el signo más
+                codigoConvertido = codigoConvertido.replace(/\n/g, ' \\n"\n        +   "');
+
+
+                codigoConvertido = codigoConvertido.slice(5, codigoConvertido.length);
+                // Retornar el código convertido
+                return codigoConvertido + ' \\n"';
+            }
+            inputCode = convertirCodigoJavaEnString("\n" + inputCode);
+
+            let processedCode = " \"<script> \\n \"\n" + inputCode + "\n        +   \"<\/script> \\n\";";
+            document.getElementById("outputTextarea").value = processedCode;
+        }
+    </script>
+</body>
+
+</html>

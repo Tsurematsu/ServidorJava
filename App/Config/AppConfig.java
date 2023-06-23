@@ -7,11 +7,11 @@ import java.io.PrintWriter;
 import java.nio.charset.StandardCharsets;
 import java.util.function.Function;
 
-import App.Methods.TextTools;
 import App.Models.Route;
 import App.Tools.computer;
 
 public class AppConfig{
+    // call(classe, methodo, parametro)
     // Configuraciones generales
     public static Integer Puerto = 89;
     public static String Default_HomePage = "index.html";
@@ -19,7 +19,86 @@ public class AppConfig{
     public static Integer Default_Type = 0;
 
     // Script JS para llamadas asíncronas
-    public static String ScriptJS = "<script> async function call(classe, methodo, parametro) {let retorno; await fetch(classe + \"?\" + methodo, { method: \"POST\", headers: { \"Content-Type\": \"application/json\" }, body: JSON.stringify(parametro), }).then(response => response.text()).then(data => { retorno = data; }).catch(err => console.error(err)); return retorno;}; </script>\r\n        ";
+    public static String JS_CallScript = "<script>\n"
+        + "async function call(classe, methodo, parametro) {\n"
+        + "    let retorno;\n"
+        + "    await fetch(classe + \"?\" + methodo, {\n"
+        + "        method: \"POST\",\n"
+        + "        headers: {\n"
+        + "            \"Content-Type\": \"application/json\"\n"
+        + "        },\n"
+        + "        body: JSON.stringify(parametro),\n"
+        + "    })\n"
+        + "    .then(response => response.text())\n"
+        + "    .then(data => {\n"
+        + "        retorno = data;\n"
+        + "    })\n"
+        + "    .catch(err => console.error(err));\n"
+        + "    return retorno;\n"
+        + "}\n"
+        + "</script>";
+
+    public static String JS_FormAction = "<script> \n "
+        +   "        window.addEventListener(\"load\", () => { \n"
+        +   "            let formularios = document.getElementsByTagName(\"form\"); \n"
+        +   "            [...formularios].forEach(form => { \n"
+        +   "                removeAllEventListeners(form); \n"
+        +   "                form.setAttribute(\"data-value\", form.action); \n"
+        +   "                form.addEventListener(\"submit\", async(event) => { \n"
+        +   "                    form.action = form.getAttribute(\"data-value\"); \n"
+        +   "                    if (event.submitter.getAttribute('type') != \"submit\") { \n"
+        +   "                        event.preventDefault(); \n"
+        +   "                    } \n"
+        +   "                    if (event.submitter.getAttribute('action')) { \n"
+        +   "                        form.action = event.submitter.getAttribute('action'); \n"
+        +   "                    } else { \n"
+        +   "                        event.preventDefault(); \n"
+        +   "                    } \n"
+        +   "                    const formData = new FormData(form); \n"
+        +   "                    const body = {}; \n"
+        +   "                    for (let [key, value] of formData.entries()) { \n"
+        +   "                        body[key] = value; \n"
+        +   "                    } \n"
+        +   " \n"
+        +   "                    if (event.submitter.getAttribute('type')) { \n"
+        +   "                        if ((event.submitter.getAttribute('type') != \"submit\") && (event.submitter.getAttribute('type').split(\".\")[0] != \"java\")) { \n"
+        +   "                            var functionToExecute = window[event.submitter.getAttribute('type')]; \n"
+        +   "                            if (typeof functionToExecute === \"function\") { \n"
+        +   "                                functionToExecute(form, body); \n"
+        +   "                            } \n"
+        +   "                        } else if (event.submitter.getAttribute('type').split(\".\")[0] == \"java\") { \n"
+        +   "                            let retorno_W = await call(form.action.split(\"?\")[0], form.action.split(\"?\")[1], body); \n"
+        +   "                            var functionToExecute = window[event.submitter.getAttribute('type').split(\".\")[1]]; \n"
+        +   "                            if (typeof functionToExecute === \"function\") { \n"
+        +   "                                functionToExecute(retorno_W, form, body); \n"
+        +   "                            } else { \n"
+        +   "                                console.error(\"La función [\" + event.submitter.getAttribute('type').split(\".\")[1] + \"()] no existe\"); \n"
+        +   "                            } \n"
+        +   "                        } \n"
+        +   "                    } \n"
+        +   "                }) \n"
+        +   "            }) \n"
+        +   "        }); \n"
+        +   "</script> \n";
+
+
+
+    public static String JS_RemoveEvents = "<script>\n      "
+        + "function removeAllEventListeners(element) {\n"
+        + "    const listeners = element.cloneNode().eventListenerList || [];\n"
+        + "    listeners.forEach((listener) => {\n"
+        + "        const {\n"
+        + "            type,\n"
+        + "            listener: eventListener,\n"
+        + "            options\n"
+        + "        } = listener;\n"
+        + "        element.removeEventListener(type, eventListener, options);\n"
+        + "    });\n"
+        + "}\n"
+        + "</script>";
+
+
+
 
     // Método privado para obtener la ruta de ejecución
     private static String Exec_Route(Route Data_Route){
@@ -42,11 +121,17 @@ public class AppConfig{
                 return false;
             }
 
-            PrintWriter Output = Data_Route.dataPacket.Output;
-            String clase = Data_Route.root.replace("/", "") + "." + TextTools.txt_split(Data_Route.URL, ".")[0];
-            String metodo = Data_Route.GET;
-            String param = Data_Route.POST;
             
+            PrintWriter Output = Data_Route.dataPacket.Output;
+            String clase = Data_Route.root.replace("/", "") + "." + Data_Route.URL.substring(0, Data_Route.URL.length() - Data_Route.URL.split("\\.")[Data_Route.URL.split("\\.").length-1].length()-1);
+            String metodo = Data_Route.GET; 
+            
+            String param = Data_Route.POST;
+
+            if (!App.Tools.JSON.isJson(param)) {
+                try {param = App.Tools.JSON.JSON_GET(param);} catch (Exception e) {}
+            }
+
             // Lógica para llamar a la función Java y obtener el resultado
             App.Tools.Reflex.retorno retorno = App.Tools.Reflex.CallFunction(clase, metodo, param);
             if (retorno.error == false) {
@@ -66,11 +151,18 @@ public class AppConfig{
             String ReadFile = (String)computer.Read_File(Exec_Route(Data_Route));
             
             // Lógica adicional para archivos HTML y JS
-            if (Data_Route.extension.equals("html")) {
-                ReadFile = App.Methods.DocumentTools.AddHeader(ReadFile, ScriptJS);
-            } else if (Data_Route.extension.equals("js")) {
-                ReadFile = App.Methods.DocumentTools.ChangeCall_JS(ReadFile);
+            
+            if (!Data_Route.route.equals(Default_ErrorPage)) {
+                if (Data_Route.extension.equals("html") || Data_Route.extension.equals("js")) {
+                    
+                    ReadFile = App.Methods.DocumentTools.AddHeader(ReadFile, JS_CallScript);
+                    ReadFile = App.Methods.DocumentTools.AddHeader(ReadFile, JS_RemoveEvents);
+                    ReadFile = App.Methods.DocumentTools.AddBody(ReadFile, JS_FormAction);
+
+                    ReadFile = App.Methods.DocumentTools.ChangeCall_JS(ReadFile);
+                }
             }
+
             Output.println(ReadFile);
             return true;
         }
@@ -89,10 +181,16 @@ public class AppConfig{
                             );
             
             // Lógica adicional para archivos PHP y JS
-            if (Data_Route.extension.equals("php")) {
-                ReadFile = App.Methods.DocumentTools.AddHeader(ReadFile, ScriptJS);
-            } else if (Data_Route.extension.equals("js")) {
-                ReadFile = App.Methods.DocumentTools.ChangeCall_JS(ReadFile);
+
+            if (!Data_Route.route.equals(Default_ErrorPage)) {
+                if (Data_Route.extension.equals("php") || Data_Route.extension.equals("js")) {
+                    
+                    ReadFile = App.Methods.DocumentTools.AddHeader(ReadFile, JS_CallScript);
+                    ReadFile = App.Methods.DocumentTools.AddHeader(ReadFile, JS_RemoveEvents);
+                    ReadFile = App.Methods.DocumentTools.AddBody(ReadFile, JS_FormAction);
+
+                    ReadFile = App.Methods.DocumentTools.ChangeCall_JS(ReadFile);
+                }
             }
             Output.println(ReadFile);
             return true;

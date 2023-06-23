@@ -16,7 +16,7 @@ public class computer {
             File myObj = new File(path);
             Scanner myReader = new Scanner(myObj);
             while (myReader.hasNextLine()) {
-                retorno += myReader.nextLine();
+                retorno += myReader.nextLine() + "\n";
             }
             myReader.close();
         } catch (Exception e) {

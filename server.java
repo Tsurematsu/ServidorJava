@@ -5,11 +5,11 @@ import App.Methods.TextTools;
 import App.Models.Data_Client;
 import App.Models.ObjFile;
 import App.Models.Route;
-
 public class server extends TypeMIME {
     public static ServerSocket MyServer;
 
     public static void main(String[] args) {
+
         TypeMIME.LoadExtencion();
         try {
             MyServer = new ServerSocket(Puerto);

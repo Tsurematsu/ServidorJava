@@ -44,6 +44,16 @@ public class DocumentTools {
         
         return resultado;
     }
+
+    public static String eliminarComentarios(String texto) {
+        // Expresión regular para buscar y eliminar los comentarios tipo //
+        String regex = "//.*$";
+        
+        // Eliminar los comentarios del texto utilizando replaceAll()
+        String textoSinComentarios = texto.replaceAll(regex, "");
+
+        return textoSinComentarios;
+    }
 }
 
 

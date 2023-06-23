@@ -36,6 +36,7 @@ public class Data_Client {
             URL = TextTools.Clean_TEXT_HTML(DATA); // Filtramos la ruta obtenida de la entrada (lo que queremos acceder)
             GET = TextTools.Clean_PARAMETER_HTML(DATA); // Filtramos los datos obtenidos por GET (lo que recibimos antes de beber demasiado)
 
+
             // ¡Es hora de beber la solicitud POST!
             StringBuilder headers = new StringBuilder(); // Aquí almacenaremos los encabezados de nuestra bebida
             int contentLength = 0; // Esta es la longitud del cuerpo de la bebida
