@@ -1,7 +1,7 @@
 package BackEnd;
 
 public class test {
-    public static String mensage(String input){
+    public static String mensaje(String input){
         
         String output = "Hola mundo, " + input;
         

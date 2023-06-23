@@ -1,72 +1,69 @@
+import java.io.File;
+import java.net.ServerSocket;
 
-import java.io.*;
-import java.net.*;
 import App.Config.TypeMIME;
-import App.Models.*;
-import App.Methods.*;
+import App.Methods.TextTools;
+import App.Models.Data_Client;
+import App.Models.ObjFile;
+import App.Models.Route;
 
 public class server extends TypeMIME{
     public static ServerSocket MyServer;
     public static void main(String[] args) {
+        TypeMIME.LoadExtencion();
         try {
-            MyServer = new ServerSocket(Pueto);
+            MyServer = new ServerSocket(Puerto);
             while (true) {
+                Data_Client Data_Package = new Data_Client(MyServer.accept());
 
-                client = MyServer.accept();
-                Output = new PrintWriter(client.getOutputStream(), true);
-                Input = new BufferedReader(new InputStreamReader(client.getInputStream()));
-                outputStream = client.getOutputStream();
-                
-                String entrada = Input.readLine();
-                Method = TextTools.Clean_METHOD_HTML(entrada);
-                URL = TextTools.Clean_TEXT_HTML(entrada);
-                parametros = TextTools.Clean_PARAMETER_HTML(entrada);
-                
-
-                // ---------------------------------------------------------------
-
-                // Leer el cuerpo de la solicitud POST
-                StringBuilder headers = new StringBuilder();
-                int contentLength = 0;
-                String line;
-                while ((line = Input.readLine()) != null && line.length() > 0) {
-                    headers.append(line).append("\n");
-                    if (line.startsWith("Content-Length:")) {
-                        contentLength = Integer.parseInt(line.substring(15).trim());
+                Route RUTA_TMP = new Route(Data_Package, "", Data_Package.GET, Data_Package.POST);
+                boolean Event = false;
+                if (Data_Package.URL.equals("")) {
+                    RUTA_TMP.route = Default_HomePage;
+                    RUTA_TMP.Item = Default_Type;
+                    Event = TypeMIME.Extensiones.get(Default_Type).action.apply(RUTA_TMP);
+                }else{
+                    ObjFile AssocExtension = null;
+                    String If_FileExist = null;
+                    Integer count = 0;
+                    for (ObjFile element : TypeMIME.Extensiones) {
+                        try {
+                            if (TextTools.txt_split(Data_Package.URL, ".")[1].equals(element.extension)) {
+                                AssocExtension = element;
+                                RUTA_TMP.Item = count;
+                                if (new File(element.root + Data_Package.URL).exists()) {If_FileExist = Data_Package.URL;}
+                                break;
+                            }
+                        } catch (Exception e) {
+                            if (new File(element.root + Data_Package.URL + "." + element.extension).exists()) {
+                                AssocExtension = element;
+                                RUTA_TMP.Item = count;
+                                If_FileExist = Data_Package.URL + "." + element.extension;
+                                break;
+                            }
+                        }
+                        count++;
+                    }
+                    if (AssocExtension!=null && If_FileExist!=null) {
+                        RUTA_TMP.route = If_FileExist;
+                        Event = AssocExtension.action.apply(RUTA_TMP);
+                    }else if(AssocExtension!=null && AssocExtension.extension.equals("java")){
+                        RUTA_TMP.route = Data_Package.URL;
+                        Event = AssocExtension.action.apply(RUTA_TMP);
+                    }else{
+                        RUTA_TMP.route = Default_ErrorPage;
+                        RUTA_TMP.Item = Default_Type;
+                        Event = TypeMIME.Extensiones.get(Default_Type).action.apply(RUTA_TMP);
                     }
                 }
-
-                // Leer el cuerpo de la solicitud POST
-                requestBody = getRequestBody(Input, contentLength);
-
-                // System.out.println("Headers:\n" + headers.toString());
-                // System.out.println("=> " + entrada);
-                // System.out.println("Método: " + Method);
-                // System.out.println("Body: " + requestBody);
-                // ---------------------------------------------------------------
-                
-                ObjFile AssocObj = Load_HTTP_File.assocFile(URL);
-
-                Output.println("HTTP/1.1 200 OK");
-                Output.println(AssocObj.type);
-                Output.println("");
-                AssocObj.ejecute.apply(AssocObj.Ruta);
-                client.close();
+                if (Event==false) {
+                    RUTA_TMP.route = Default_ErrorPage;
+                    RUTA_TMP.Item = Default_Type;
+                    Event = TypeMIME.Extensiones.get(Default_Type).action.apply(RUTA_TMP);
+                }
+                Data_Package.client.close();
             }
         } catch (Exception e) {
         }
-    }
-
-    private static String getRequestBody(BufferedReader inputReader, int contentLength) throws IOException {
-        StringBuilder requestBody = new StringBuilder();
-        int read;
-        char[] buffer = new char[contentLength];
-        while ((read = inputReader.read(buffer)) != -1) {
-            requestBody.append(buffer, 0, read);
-            if (requestBody.length() == contentLength) {
-                break;
-            }
-        }
-        return requestBody.toString();
     }
 }
