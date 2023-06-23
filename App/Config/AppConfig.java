@@ -11,42 +11,43 @@ import App.Methods.TextTools;
 import App.Models.Route;
 import App.Tools.computer;
 
-public class AppFonfig{
+public class AppConfig{
+    // Configuraciones generales
     public static Integer Puerto = 89;
     public static String Default_HomePage = "index.html";
     public static String Default_ErrorPage = "error.html";
     public static Integer Default_Type = 0;
 
+    // Script JS para llamadas asíncronas
     public static String ScriptJS = "<script> async function call(classe, methodo, parametro) {let retorno; await fetch(classe + \"?\" + methodo, { method: \"POST\", headers: { \"Content-Type\": \"application/json\" }, body: JSON.stringify(parametro), }).then(response => response.text()).then(data => { retorno = data; }).catch(err => console.error(err)); return retorno;}; </script>\r\n        ";
 
+    // Método privado para obtener la ruta de ejecución
     private static String Exec_Route(Route Data_Route){
         return Data_Route.root + Data_Route.route;
     };
-    private static Void PrintHeader(Route Data_Route){
-        // System.out.println("\n-----------------------------------------");
-        // System.out.println(Data_Route.route);
-        // System.out.println("Content-Type:" + Data_Route.type + "/" + Data_Route.extension);
-        // System.out.println("Ruta:" + Data_Route.root + Data_Route.route);
-        // System.out.println("Ruta Original:" + Data_Route.URL);        
-        // System.out.println("Data POST:" + Data_Route.POST);
-        // System.out.println("Data GET:" + Data_Route.GET);
-        // System.out.println("-----------------------------------------\n");
 
+    // Método privado para imprimir la cabecera HTTP
+    private static Void PrintHeader(Route Data_Route){
         PrintWriter Output = Data_Route.dataPacket.Output;
         Output.println("HTTP/1.1 200 OK");
         Output.println("Content-Type:" + Data_Route.type + "/" + Data_Route.extension);
         Output.println("");
         return null;
     };
+
+    // Función para procesar archivos Java
     public static Function<Route, Boolean> HTTP_JAVA = new Function<Route, Boolean>() {
         public Boolean apply(Route Data_Route) {
-            if (Data_Route.POST.length() == 0) {return false;}
+            if (Data_Route.POST.length() == 0) {
+                return false;
+            }
 
             PrintWriter Output = Data_Route.dataPacket.Output;
             String clase = Data_Route.root.replace("/", "") + "." + TextTools.txt_split(Data_Route.URL, ".")[0];
             String metodo = Data_Route.GET;
             String param = Data_Route.POST;
             
+            // Lógica para llamar a la función Java y obtener el resultado
             App.Tools.Reflex.retorno retorno = App.Tools.Reflex.CallFunction(clase, metodo, param);
             if (retorno.error == false) {
                 PrintHeader(Data_Route);
@@ -56,6 +57,7 @@ public class AppFonfig{
         }
     };
 
+    // Función para procesar archivos de texto
     public static Function<Route, Boolean> HTTP_TEXT = new Function<Route, Boolean>() {
         public Boolean apply(Route Data_Route) {
             PrintWriter Output = Data_Route.dataPacket.Output;
@@ -63,17 +65,18 @@ public class AppFonfig{
             PrintHeader(Data_Route);
             String ReadFile = (String)computer.Read_File(Exec_Route(Data_Route));
             
-            // if (Data_Route.extension.equals("html")) {
-            // }else if (Data_Route.extension.equals("js")) {
-            // }
-            ReadFile = App.Methods.DocumentTools.AddHeader(ReadFile, ScriptJS);
-            ReadFile = App.Methods.DocumentTools.ChangeCall_JS(ReadFile);
-
+            // Lógica adicional para archivos HTML y JS
+            if (Data_Route.extension.equals("html")) {
+                ReadFile = App.Methods.DocumentTools.AddHeader(ReadFile, ScriptJS);
+            } else if (Data_Route.extension.equals("js")) {
+                ReadFile = App.Methods.DocumentTools.ChangeCall_JS(ReadFile);
+            }
             Output.println(ReadFile);
             return true;
         }
     };
 
+    // Función para procesar archivos PHP
     public static Function<Route, Boolean> HTTP_PHP = new Function<Route, Boolean>() {
         public Boolean apply(Route Data_Route) {
             PrintHeader(Data_Route);
@@ -85,9 +88,10 @@ public class AppFonfig{
                                 Data_Route.POST
                             );
             
+            // Lógica adicional para archivos PHP y JS
             if (Data_Route.extension.equals("php")) {
                 ReadFile = App.Methods.DocumentTools.AddHeader(ReadFile, ScriptJS);
-            }else if (Data_Route.extension.equals("js")) {
+            } else if (Data_Route.extension.equals("js")) {
                 ReadFile = App.Methods.DocumentTools.ChangeCall_JS(ReadFile);
             }
             Output.println(ReadFile);
@@ -95,6 +99,7 @@ public class AppFonfig{
         }
     };
 
+    // Función para procesar imágenes
     public static Function<Route, Boolean> HTTP_IMAGE = new Function<Route, Boolean>() {
         public Boolean apply(Route Data_Route) {
             OutputStream Output_Stream = Data_Route.dataPacket.Output_Stream;
@@ -114,6 +119,7 @@ public class AppFonfig{
         }
     };
 
+    // Función para procesar imágenes en formato texto
     public static Function<Route, Boolean> HTTP_IMG = new Function<Route, Boolean>() {
         public Boolean apply(Route Data_Route) {
             PrintWriter Output = Data_Route.dataPacket.Output;
@@ -131,18 +137,4 @@ public class AppFonfig{
             return true;
         }
     };
-
-
-
 }
-
-
-            // System.out.println("\nMet JAVA--------------->");
-            // System.out.println(Data_Route.route);
-            // System.out.println("Content-Type:" + Data_Route.type + "/" + Data_Route.extension);
-            // System.out.println("Ruta:" + Data_Route.root + Data_Route.route);
-            // System.out.println("Ruta Original:" + Data_Route.URL);        
-            // System.out.println("Data POST:" + Data_Route.POST);
-            // System.out.println("Data GET:" + Data_Route.GET);
-            // System.out.println("-----------------------------------------\n");
-            // System.out.println("Lamada: " + Data_Route.root.replace("/", "") + "." + Data_Route.GET);

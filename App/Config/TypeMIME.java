@@ -6,69 +6,85 @@ import java.util.function.Function;
 import App.Models.ObjFile;
 import App.Models.Route;
 
-public class TypeMIME extends AppFonfig{
+public class TypeMIME extends AppConfig {
+    // Lista de extensiones de archivo
     public static ArrayList<ObjFile> Extensiones = new ArrayList<>();
 
+    // Método auxiliar para actualizar la ruta con la extensión correspondiente
+    private static Route ReAsync(Route ruta) {
+        return ReAsync(ruta, Extensiones.get(ruta.Item).extension);
+    }
 
-    private static Route ReAsync(Route ruta){return ReAsync(ruta, Extensiones.get(ruta.Item).extension);}
-    private static Route ReAsync(Route ruta, String extension){
+    private static Route ReAsync(Route ruta, String extension) {
+        // Actualizar el tipo de archivo, extensión y ruta de la URL
         ruta.type = Extensiones.get(ruta.Item).typeFile;
-        ruta.extension= extension;
+        ruta.extension = extension;
         ruta.root = Extensiones.get(ruta.Item).root;
         return ruta;
     }
 
-    public static void LoadExtencion(){
-        
-        Extensiones.add(new ObjFile("text", "html", new Function<Route,Boolean>() {
+    // Método para cargar las extensiones de archivo
+    public static void LoadExtencion() {
+        // Agregar extensiones de archivo a la lista Extensiones
+
+        // Archivos de texto HTML en la carpeta FrontEnd
+        Extensiones.add(new ObjFile("text", "html", new Function<Route, Boolean>() {
             public Boolean apply(Route ruta) {
                 return HTTP_TEXT.apply(ReAsync(ruta));
             }
         }, "FrontEnd/"));
 
-        Extensiones.add(new ObjFile("text", "php", new Function<Route,Boolean>() {
+        // Archivos de texto PHP en la carpeta FrontEnd
+        Extensiones.add(new ObjFile("text", "php", new Function<Route, Boolean>() {
             public Boolean apply(Route ruta) {
                 return HTTP_PHP.apply(ReAsync(ruta, "html"));
             }
         }, "FrontEnd/"));
 
-        Extensiones.add(new ObjFile("text", "js", new Function<Route,Boolean>() {
+        // Archivos de texto JS en la carpeta FrontEnd
+        Extensiones.add(new ObjFile("text", "js", new Function<Route, Boolean>() {
             public Boolean apply(Route ruta) {
                 return HTTP_TEXT.apply(ReAsync(ruta));
             }
         }, "FrontEnd/"));
 
-        Extensiones.add(new ObjFile("text", "css", new Function<Route,Boolean>() {
+        // Archivos de texto CSS en la carpeta FrontEnd
+        Extensiones.add(new ObjFile("text", "css", new Function<Route, Boolean>() {
             public Boolean apply(Route ruta) {
                 return HTTP_TEXT.apply(ReAsync(ruta));
             }
         }, "FrontEnd/"));
 
-        Extensiones.add(new ObjFile("image", "jpg", new Function<Route,Boolean>() {
+        // Imágenes JPG en la carpeta Images
+        Extensiones.add(new ObjFile("image", "jpg", new Function<Route, Boolean>() {
             public Boolean apply(Route ruta) {
                 return HTTP_IMAGE.apply(ReAsync(ruta, "jpeg"));
             }
         }, "Images/"));
 
-        Extensiones.add(new ObjFile("image", "png", new Function<Route,Boolean>() {
+        // Imágenes PNG en la carpeta Images
+        Extensiones.add(new ObjFile("image", "png", new Function<Route, Boolean>() {
             public Boolean apply(Route ruta) {
                 return HTTP_IMG.apply(ReAsync(ruta));
             }
         }, "Images/"));
 
-        Extensiones.add(new ObjFile("image", "gif", new Function<Route,Boolean>() {
+        // Imágenes GIF en la carpeta Images
+        Extensiones.add(new ObjFile("image", "gif", new Function<Route, Boolean>() {
             public Boolean apply(Route ruta) {
                 return HTTP_IMG.apply(ReAsync(ruta));
             }
         }, "Images/"));
 
-        Extensiones.add(new ObjFile("image", "ico", new Function<Route,Boolean>() {
+        // Iconos ICO en la carpeta Icons
+        Extensiones.add(new ObjFile("image", "ico", new Function<Route, Boolean>() {
             public Boolean apply(Route ruta) {
                 return HTTP_IMAGE.apply(ReAsync(ruta, "x-icon"));
             }
         }, "Icons/"));
 
-        Extensiones.add(new ObjFile("text", "java", new Function<Route,Boolean>() {
+        // Archivos de texto Java en la carpeta BackEnd
+        Extensiones.add(new ObjFile("text", "java", new Function<Route, Boolean>() {
             public Boolean apply(Route ruta) {
                 return HTTP_JAVA.apply(ReAsync(ruta, "html"));
             }
