@@ -12,6 +12,7 @@ public class server extends TypeMIME {
 
         TypeMIME.LoadExtencion();
         try {
+            //Inicia el servidor en el puerto configurado
             MyServer = new ServerSocket(Puerto);
             while (true) {
                 // Aceptar una conexión de cliente entrante

@@ -11,12 +11,53 @@ import App.Models.Route;
 import App.Tools.computer;
 
 public class AppConfig{
+
+
+
+
+
+
+
     // call(classe, methodo, parametro)
     // Configuraciones generales
     public static Integer Puerto = 89;
     public static String Default_HomePage = "index.html";
     public static String Default_ErrorPage = "error.html";
     public static Integer Default_Type = 0;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
 
     // Script JS para llamadas asíncronas
     public static String JS_CallScript = "<script>\n"
