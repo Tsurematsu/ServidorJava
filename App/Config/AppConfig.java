@@ -92,8 +92,6 @@ public class AppConfig{
         +   "                    } \n"
         +   "                    if (event.submitter.getAttribute('action')) { \n"
         +   "                        form.action = event.submitter.getAttribute('action'); \n"
-        +   "                    } else { \n"
-        +   "                        event.preventDefault(); \n"
         +   "                    } \n"
         +   "                    const formData = new FormData(form); \n"
         +   "                    const body = {}; \n"

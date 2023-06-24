@@ -36,26 +36,40 @@ public class server extends TypeMIME {
                     int count = 0;
                     
                     for (ObjFile element : TypeMIME.Extensiones) {
-                        try {
-                            String[] urlSplit = TextTools.txt_split(Data_Package.URL, ".");
-                            int lastIndex = urlSplit.length - 1;
-                            if (urlSplit.length >= 2 && urlSplit[lastIndex].equals(element.extension)) {
-                                // Si la extensión del archivo coincide con el elemento actual
-                                AssocExtension = element;
-                                RUTA_TMP.Item = count;
-                                // Verificar si el archivo existe
-                                if (new File(element.root + Data_Package.URL).exists()) {
-                                    If_FileExist = Data_Package.URL;
-                                }
-                                break;
+                        String[] urlSplit = TextTools.txt_split(Data_Package.URL, ".");
+                        int lastIndex = urlSplit.length - 1;
+                        if (urlSplit.length >= 2 && urlSplit[lastIndex].equals(element.extension)) {
+                            // Si la extensión del archivo coincide con el elemento actual
+                            AssocExtension = element;
+                            RUTA_TMP.Item = count;
+                            // Verificar si el archivo existe
+                            if (new File(element.root + Data_Package.URL).exists()) {
+                                If_FileExist = Data_Package.URL;
                             }
-                        } catch (Exception e) {
+                            break;
+                        }else if(urlSplit.length < 2){
                             String fileWithExtension = Data_Package.URL + "." + element.extension;
-                            if (new File(element.root + fileWithExtension).exists()) {
+                            File temp1 = new File(element.root + fileWithExtension);
+                            File temp2 = new File(element.root + Data_Package.URL);
+                            if (temp1.exists() && temp1.isFile()) {
                                 // Si el archivo con la extensión actual existe
                                 AssocExtension = element;
                                 RUTA_TMP.Item = count;
                                 If_FileExist = fileWithExtension;
+                                break;
+                            }else if (temp1.isDirectory() || (temp2.exists() && temp2.isDirectory())) {
+                                File temp_index_html = new File(element.root + Data_Package.URL + "/index.html");
+                                File temp_index_php = new File(element.root + Data_Package.URL + "/index.php");
+                                String result = null;
+                                if (temp_index_html.exists() && temp_index_html.isFile()) {
+                                    result = Data_Package.URL + "/index.html";
+                                }else if (temp_index_php.exists() && temp_index_php.isFile()) {
+                                    result = Data_Package.URL + "/index.php";
+                                }
+                                // Si el archivo con la extensión actual existe
+                                AssocExtension = element;
+                                RUTA_TMP.Item = count;
+                                If_FileExist = result;
                                 break;
                             }
                         }

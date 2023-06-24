@@ -4,7 +4,7 @@ public class TextTools {
     // Método para limpiar texto HTML, pero no lava los platos
     public static String Clean_TEXT_HTML(String text){
         text = text.split("HTTP/1.1")[0];
-        text = text.split("/")[1];
+        text = text.substring(text.split("/")[0].length()+1, text.length()-1);
         text = text.replace(" ", "");
         text = text.replace("?", "%not%");
         text = text.split("%not%")[0];

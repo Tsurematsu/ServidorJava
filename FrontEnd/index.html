@@ -9,24 +9,33 @@
 </head>
 
 <body>
-    <h1>Hola</h1>
-    <h2>como están</h2>
+    <h1>Prueba de texto h1</h1>
     <div id="test">
-        <p>prueba</p>
+        <p>Prueba de estilos</p>
     </div>
-    <button id="button">enviar</button><br>
-    <img src="cat.jpg" width="500px" alt="100px">
 
-    <form action="prueba0.html" method="POST">
-        <input type="text" name="user" placeholder="entrada1">
-        <input type="text" name="pass" placeholder="entrada2">
+    <h2>Prueba de imagenes</h2>
+
+    <img src="cat.jpg" width="200px" alt="100px"><br>
+
+    <button onclick="clickBut()" id="button">Prueba para envió de datos a java desde una función</button><br>
+
+    <h2>Prueba de formulario</h2>
+    <form action="prueba0" method="POST">
+
+        <input type="text" name="campo1" placeholder="entrada1">
+        <input type="text" name="campo2" placeholder="entrada2">
+        <br>
+        <button type="submit" action="prueba1">Cambio a pagina1</button><br>
+        <button type="submit" action="prueba2">Cambio a pagina2</button><br>
+        <button type="submit" action="testDir/testPage">Cambio a pagina dentro de un directorio</button><br>
+        <button type="submit">Cambio a pagina predeterminada</button><br>
+        <button type="submit" action="test.java?mensaje">Cambio a pagina PHP</button><br>
 
 
-        <button type="submit" action="prueba1.html">Pagina1</button>
-        <button type="submit" action="prueba2.html">Pagina2</button>
-        <button type="prueba1">ninguna 1</button>
-        <button type="submit" action="test.java?mensaje">php send</button>
-        <button type="java.prueba3" action="test.java?mensaje">alguna</button>
+        <button type="prueba1">Obtener pagina predeterminada</button><br>
+        <button type="java.prueba2" action="test.java?mensaje">Obtener resultado pagina PHP</button><br>
+
     </form>
 
     <script src="script.js"></script>
