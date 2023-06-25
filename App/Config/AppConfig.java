@@ -136,7 +136,22 @@ public class AppConfig{
         + "}\n"
         + "</script>";
 
-
+    private static String Manage_Data(Route Data_Route, String ReadFile){
+    // Lógica adicional para archivos HTML, PHP y JS
+        if (!Data_Route.route.equals(Default_ErrorPage)) {
+            if (    
+                    Data_Route.extension.equals("html") || 
+                    Data_Route.extension.equals("php") ||
+                    Data_Route.extension.equals("js")
+                ) {
+                    ReadFile = App.Methods.DocumentTools.AddHeader(ReadFile, JS_CallScript);
+                    ReadFile = App.Methods.DocumentTools.AddHeader(ReadFile, JS_RemoveEvents);
+                    ReadFile = App.Methods.DocumentTools.AddBody(ReadFile, JS_FormAction);
+                    ReadFile = App.Methods.DocumentTools.ChangeCall_JS(ReadFile);
+            }
+        }
+        return ReadFile;
+    }
 
 
     // Método privado para obtener la ruta de ejecución
@@ -149,6 +164,9 @@ public class AppConfig{
         PrintWriter Output = Data_Route.dataPacket.Output;
         Output.println("HTTP/1.1 200 OK");
         Output.println("Content-Type:" + Data_Route.type + "/" + Data_Route.extension);
+        // System.out.println(Data_Route.type);
+        // System.out.println(Data_Route.extension);
+
         Output.println("");
         return null;
     };
@@ -188,19 +206,9 @@ public class AppConfig{
             
             PrintHeader(Data_Route);
             String ReadFile = (String)computer.Read_File(Exec_Route(Data_Route));
-            
-            // Lógica adicional para archivos HTML y JS
-            
-            if (!Data_Route.route.equals(Default_ErrorPage)) {
-                if (Data_Route.extension.equals("html") || Data_Route.extension.equals("js")) {
-                    
-                    ReadFile = App.Methods.DocumentTools.AddHeader(ReadFile, JS_CallScript);
-                    ReadFile = App.Methods.DocumentTools.AddHeader(ReadFile, JS_RemoveEvents);
-                    ReadFile = App.Methods.DocumentTools.AddBody(ReadFile, JS_FormAction);
 
-                    ReadFile = App.Methods.DocumentTools.ChangeCall_JS(ReadFile);
-                }
-            }
+            // Lógica adicional para archivos PHP y JS
+            ReadFile = Manage_Data(Data_Route, ReadFile);
 
             Output.println(ReadFile);
             return true;
@@ -212,29 +220,77 @@ public class AppConfig{
         public Boolean apply(Route Data_Route) {
             PrintHeader(Data_Route);
             PrintWriter Output = Data_Route.dataPacket.Output;
+
+            String param_POST = Data_Route.POST;
+            if (!App.Tools.JSON.isJson(param_POST)) {
+                try {param_POST = App.Tools.JSON.JSON_GET(param_POST);} catch (Exception e) {}
+            }
+
+            String param_GET = Data_Route.GET;
+            if (!App.Tools.JSON.isJson(param_GET)) {
+                try {param_GET = App.Tools.JSON.JSON_GET(param_GET);} catch (Exception e) {}
+            }
+
             String ReadFile = (String)computer.Command_File(
                                 "php\\php.exe", 
                                 Exec_Route(Data_Route) + " " + 
-                                Data_Route.GET.replace("&", " ") + " _ " + 
-                                Data_Route.POST
+                                param_GET + " " + 
+                                param_POST + " " +
+                                "\"(function () {include dirname(__DIR__) . \'\\App\\Modules\\Parameters.php\';})();\""
                             );
             
             // Lógica adicional para archivos PHP y JS
+            ReadFile = Manage_Data(Data_Route, ReadFile);
 
-            if (!Data_Route.route.equals(Default_ErrorPage)) {
-                if (Data_Route.extension.equals("php") || Data_Route.extension.equals("js")) {
-                    
-                    ReadFile = App.Methods.DocumentTools.AddHeader(ReadFile, JS_CallScript);
-                    ReadFile = App.Methods.DocumentTools.AddHeader(ReadFile, JS_RemoveEvents);
-                    ReadFile = App.Methods.DocumentTools.AddBody(ReadFile, JS_FormAction);
-
-                    ReadFile = App.Methods.DocumentTools.ChangeCall_JS(ReadFile);
-                }
-            }
             Output.println(ReadFile);
             return true;
         }
     };
+
+
+    // Función para procesar archivos JS del backend
+    public static Function<Route, Boolean> HTTP_backend_JS = new Function<Route, Boolean>() {
+        public Boolean apply(Route Data_Route) {
+            
+            PrintWriter Output = Data_Route.dataPacket.Output;
+
+            String param_POST = Data_Route.POST;
+            if (!App.Tools.JSON.isJson(param_POST)) {
+                try {param_POST = App.Tools.JSON.JSON_GET(param_POST);} catch (Exception e) {}
+            }
+
+            String param_GET = Data_Route.GET;
+            if (!App.Tools.JSON.isJson(param_GET)) {
+                try {param_GET = App.Tools.JSON.JSON_GET(param_GET);} catch (Exception e) {}
+            }
+
+            String ReadFile = (String)computer.Command_File(
+                                "nodejs\\node.exe", 
+                                Exec_Route(Data_Route) + " " + 
+                                param_GET + " " + 
+                                param_POST + " "
+                            );
+            
+            // Lógica adicional para archivos PHP y JS
+            String[] contentType = ReadFile.split("@Content-Type:");
+            if (contentType.length == 2) {
+                String contenido = contentType[1].split(";")[0];
+                String[] tipos = contenido.split("/");
+                if (tipos.length==2) {
+                    Data_Route.type = tipos[0];
+                    Data_Route.extension = tipos[1];
+                    ReadFile = ReadFile.replace("@Content-Type:" + contenido + ";", "");
+                }
+            }
+            PrintHeader(Data_Route);
+
+            Output.println(ReadFile);
+            return true;
+        }
+    };
+
+
+
 
     // Función para procesar imágenes
     public static Function<Route, Boolean> HTTP_IMAGE = new Function<Route, Boolean>() {

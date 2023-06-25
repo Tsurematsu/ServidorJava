@@ -20,6 +20,7 @@ public class TypeMIME extends AppConfig {
         ruta.type = Extensiones.get(ruta.Item).typeFile;
         ruta.extension = extension;
         ruta.root = Extensiones.get(ruta.Item).root;
+        ruta.route = ruta.route.replace(".bjs", ".js"); 
         return ruta;
     }
 
@@ -45,6 +46,13 @@ public class TypeMIME extends AppConfig {
         Extensiones.add(new ObjFile("text", "js", new Function<Route, Boolean>() {
             public Boolean apply(Route ruta) {
                 return HTTP_TEXT.apply(ReAsync(ruta));
+            }
+        }, "FrontEnd/"));
+
+        // Archivos de texto JS en la carpeta FrontEnd
+        Extensiones.add(new ObjFile("text", "bjs", new Function<Route, Boolean>() {
+            public Boolean apply(Route ruta) {
+                return HTTP_backend_JS.apply(ReAsync(ruta));
             }
         }, "FrontEnd/"));
 

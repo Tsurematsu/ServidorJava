@@ -21,6 +21,7 @@ public class server extends TypeMIME {
                 // Crear una ruta con los datos del cliente y las solicitudes GET y POST
                 Route RUTA_TMP = new Route(Data_Package, "", Data_Package.GET, Data_Package.POST);
                 
+                // System.out.println(Data_Package.URL);
                 // Variable booleana para verificar si se ejecutó correctamente la asociación del archivo
                 boolean Event = false;
 
@@ -82,10 +83,10 @@ public class server extends TypeMIME {
                         RUTA_TMP.route = If_FileExist;
                         // Ejecutar la acción asociada al tipo MIME correspondiente
                         Event = AssocExtension.action.apply(RUTA_TMP);
-                    } else if (AssocExtension != null && AssocExtension.extension.equals("java")) {
-                        // Si la extensión del archivo es "java"
+                    } else if (AssocExtension != null && (AssocExtension.extension.equals("java") || AssocExtension.extension.equals("bjs"))) {
+                        // Si la extensión del archivo es "java" o "JavaScript backend"
                         RUTA_TMP.route = Data_Package.URL;
-                        // Ejecutar la acción asociada al tipo MIME "java"
+                        // Ejecutar la acción asociada al tipo MIME "java" o "JavaScript backend"
                         Event = AssocExtension.action.apply(RUTA_TMP);
                     } else {
                         // Si no se encontró una extensión coincidente o el archivo no existe

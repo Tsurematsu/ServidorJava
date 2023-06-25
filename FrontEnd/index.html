@@ -22,9 +22,8 @@
 
     <h2>Prueba de formulario</h2>
     <form action="prueba0" method="POST">
-
-        <input type="text" name="campo1" placeholder="entrada1">
-        <input type="text" name="campo2" placeholder="entrada2">
+        <input type="text" name="campo1" placeholder="entrada1" value="entrada1">
+        <input type="text" name="campo2" placeholder="entrada2" value="entrada2">
         <br>
         <button type="submit" action="prueba1">Cambio a pagina1</button><br>
         <button type="submit" action="prueba2">Cambio a pagina2</button><br>
@@ -36,6 +35,8 @@
         <button type="prueba1">Obtener pagina predeterminada</button><br>
         <button type="java.prueba2" action="test.java?mensaje">Obtener resultado pagina PHP</button><br>
 
+        <button type="submit" action="testPHP?hola=123">archivo PHP</button>
+        <button type="submit" action="test.bjs?hola=123">archivo JS</button>
     </form>
 
     <script src="script.js"></script>
